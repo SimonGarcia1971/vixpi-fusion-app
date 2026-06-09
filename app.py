@@ -196,11 +196,25 @@ with st.sidebar:
     st.markdown("---")
 
     st.markdown("### 📂 Datos")
+
+    # Cargar datos por defecto del repositorio si existen
+    import os
+    datos_default = None
+    for nombre in ['datos.xlsx','datos_Cloude_sin_Compra.xlsx','data.xlsx']:
+        if os.path.exists(nombre):
+            datos_default = nombre
+            break
+
     uploaded = st.file_uploader(
-        "Sube tu archivo de datos (Excel 1min)",
+        "Actualizar datos (Excel 1min)",
         type=['xlsx','xls'],
-        help="Archivo con columnas: datetime, open, high, low, close"
+        help="Sube un Excel nuevo para actualizar. Si no subes nada se usan los datos del repositorio."
     )
+
+    if uploaded is None and datos_default:
+        st.success(f"✅ Usando datos del repositorio: {datos_default}")
+    elif uploaded is None and not datos_default:
+        st.warning("Sube un archivo Excel para comenzar")
 
     st.markdown("---")
     st.markdown("### ⚙️ Parámetros")
@@ -232,7 +246,15 @@ with st.sidebar:
 # ════════════════════════════════════════════════════
 # CARGA DE DATOS
 # ════════════════════════════════════════════════════
-if uploaded is None:
+# ── Determinar fuente de datos ──────────────────────
+import os
+datos_default = None
+for nombre in ['datos.xlsx','datos_Cloude_sin_Compra.xlsx','data.xlsx']:
+    if os.path.exists(nombre):
+        datos_default = nombre
+        break
+
+if uploaded is None and datos_default is None:
     st.markdown("# 📈 VIXπ-Fusion · Dashboard")
     st.markdown("### Sube tu archivo de datos para comenzar el análisis")
     col1,col2,col3=st.columns(3)
@@ -246,7 +268,10 @@ if uploaded is None:
 
 # Cargar y procesar
 with st.spinner("Calculando indicadores..."):
-    df_raw = pd.read_excel(uploaded)
+    if uploaded is not None:
+        df_raw = pd.read_excel(uploaded)
+    else:
+        df_raw = pd.read_excel(datos_default)
     df = calcular_indicador(df_raw)
 
 fecha_ini = df['dt'].min().strftime('%d %b %Y')
