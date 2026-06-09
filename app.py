@@ -294,6 +294,17 @@ n_cruces  = df['cruce'].sum()
 # ════════════════════════════════════════════════════
 # TABS PRINCIPALES
 # ════════════════════════════════════════════════════
+
+def metric_card(label, value, delta=None, color="#e8eaf0"):
+    delta_html = f'''<div style="font-size:12px;color:#2ecc9a;margin-top:2px">{delta}</div>''' if delta else ""
+    st.markdown(f'''
+    <div style="background:#1a1e28;border:1px solid rgba(255,255,255,0.12);
+                border-radius:10px;padding:16px;margin-bottom:4px">
+        <div style="font-size:12px;color:#8b90a0;margin-bottom:6px">{label}</div>
+        <div style="font-size:26px;font-weight:700;color:{color}">{value}</div>
+        {delta_html}
+    </div>''', unsafe_allow_html=True)
+
 tab1, tab2, tab3, tab4 = st.tabs([
     "📊 Resumen",
     "🗓️ Tabla Día × Hora",
@@ -308,11 +319,11 @@ with tab1:
     st.markdown(f"### VIXπ-Fusion · {fecha_ini} → {fecha_fin}")
 
     c1,c2,c3,c4,c5 = st.columns(5)
-    c1.metric("Velas totales",    f"{n_velas:,}")
-    c2.metric("Cruces alcistas",  f"{n_cruces}")
-    c3.metric("Periodo",          f"{(df['dt'].max()-df['dt'].min()).days} días")
-    c4.metric("Último cierre",    f"{df['close'].iloc[-1]:,.2f}")
-    c5.metric("ATR actual",       f"{df['atr14'].iloc[-1]:.1f} pts")
+    with c1: metric_card("Velas totales",   f"{n_velas:,}")
+    with c2: metric_card("Cruces alcistas", f"{n_cruces}")
+    with c3: metric_card("Periodo",         f"{(df['dt'].max()-df['dt'].min()).days} días")
+    with c4: metric_card("Último cierre",   f"{df['close'].iloc[-1]:,.2f}")
+    with c5: metric_card("ATR actual",      f"{df['atr14'].iloc[-1]:.1f} pts")
 
     st.markdown("---")
 
@@ -328,12 +339,12 @@ with tab1:
         dd = (np.maximum.accumulate(np.append([0],eq))-np.append([0],eq)).max()
 
         c1,c2,c3,c4,c5 = st.columns(5)
-        c1.metric("Trades",       f"{len(arr)}")
-        c2.metric("Win Rate",     f"{wins/len(arr)*100:.1f}%")
-        c3.metric("P&L neto",     f"${arr.sum():,.0f}",
-                  delta=f"+${arr.sum():,.0f}" if arr.sum()>0 else f"${arr.sum():,.0f}")
-        c4.metric("Profit Factor",f"{pf:.2f}")
-        c5.metric("Max Drawdown", f"−${dd:,.0f}")
+        col_pnl = "#2ecc9a" if arr.sum()>0 else "#c04444"
+        with c1: metric_card("Trades",        f"{len(arr)}")
+        with c2: metric_card("Win Rate",       f"{wins/len(arr)*100:.1f}%", color="#2ecc9a")
+        with c3: metric_card("P&L neto",       f"${arr.sum():,.0f}", color=col_pnl)
+        with c4: metric_card("Profit Factor",  f"{pf:.2f}", color="#2ecc9a")
+        with c5: metric_card("Max Drawdown",   f"−${dd:,.0f}", color="#c04444")
 
         # Equity curve
         eq_df = pd.DataFrame({'trade': range(1,len(eq)+1), 'equity': eq})
@@ -507,17 +518,18 @@ with tab3:
         else: racha=0
 
     c1,c2,c3,c4,c5,c6 = st.columns(6)
-    c1.metric("Trades",       len(arr2))
-    c2.metric("Win Rate",     f"{wins2/len(arr2)*100:.1f}%")
-    c3.metric("P&L bruto",    f"${(arr2.sum()+comision*2*n_contr*len(arr2)):,.0f}")
-    c4.metric("Comisiones",   f"−${comision*2*n_contr*len(arr2):,.0f}")
-    c5.metric("P&L neto",     f"${arr2.sum():,.0f}")
-    c6.metric("Profit Factor",f"{pf2:.2f}")
+    col2_= "#2ecc9a" if arr2.sum()>0 else "#c04444"
+    with c1: metric_card("Trades",        str(len(arr2)))
+    with c2: metric_card("Win Rate",      f"{wins2/len(arr2)*100:.1f}%", color="#2ecc9a")
+    with c3: metric_card("P&L bruto",     f"${(arr2.sum()+comision*2*n_contr*len(arr2)):,.0f}")
+    with c4: metric_card("Comisiones",    f"−${comision*2*n_contr*len(arr2):,.0f}", color="#c04444")
+    with c5: metric_card("P&L neto",      f"${arr2.sum():,.0f}", color=col2_)
+    with c6: metric_card("Profit Factor", f"{pf2:.2f}", color="#2ecc9a")
 
     c1b,c2b,c3b = st.columns(3)
-    c1b.metric("Max Drawdown",     f"−${dd2:,.0f}")
-    c2b.metric("Racha máx pérdidas",f"{mr} trades")
-    c3b.metric("Media/trade",      f"${arr2.mean():,.0f}")
+    with c1b: metric_card("Max Drawdown",      f"−${dd2:,.0f}", color="#c04444")
+    with c2b: metric_card("Racha máx pérdidas",f"{mr} trades")
+    with c3b: metric_card("Media/trade",       f"${arr2.mean():,.0f}")
 
     # Por hora
     st.markdown("#### Por hora")
@@ -622,12 +634,12 @@ with tab4:
     last = df.iloc[-1]
 
     c1,c2,c3,c4 = st.columns(4)
-    c1.metric("EMA PRO",   f"{last['ema_pro']:.4f}")
-    c2.metric("EMA 1/7",   f"{last['ema_17']:.4f}")
-    c3.metric("Thales r",  f"{last['thales_corr']:.3f}",
-              delta="✅ coherente" if last['thales_corr']>0.5 else "⚠️ bajo")
-    c4.metric("ATR 14",    f"{last['atr14']:.1f} pts",
-              delta="✅ OK" if last['atr14']<=14 else "⚠️ alto")
+    with c1: metric_card("EMA PRO",  f"{last['ema_pro']:.4f}")
+    with c2: metric_card("EMA 1/7",  f"{last['ema_17']:.4f}")
+    tc = "#2ecc9a" if last['thales_corr']>0.5 else "#dca028"
+    with c3: metric_card("Thales r", f"{last['thales_corr']:.3f}", color=tc)
+    ac = "#2ecc9a" if last['atr14']<=14 else "#c04444"
+    with c4: metric_card("ATR 14",   f"{last['atr14']:.1f} pts", color=ac)
 
     ema17_sobre = last['ema_17'] > last['ema_pro']
     st.info(f"**Posición EMAs:** {'🟢 EMA 1/7 POR ENCIMA de EMA PRO — ventana alcista abierta' if ema17_sobre else '⚪ EMA 1/7 por debajo de EMA PRO — sin señal activa'}")
