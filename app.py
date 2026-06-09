@@ -22,9 +22,21 @@ st.markdown("""
   .stMetric { background: #1a1e28; border-radius: 10px; padding: 12px; }
   div[data-testid="metric-container"] {
     background: #1a1e28;
-    border: 1px solid rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
     border-radius: 10px;
     padding: 14px;
+  }
+  div[data-testid="metric-container"] label {
+    color: #8b90a0 !important;
+    font-size: 13px !important;
+  }
+  div[data-testid="metric-container"] [data-testid="stMetricValue"] {
+    color: #e8eaf0 !important;
+    font-size: 28px !important;
+    font-weight: 700 !important;
+  }
+  div[data-testid="metric-container"] [data-testid="stMetricDelta"] {
+    color: #2ecc9a !important;
   }
   .exc-cell  { background: rgba(26,122,94,0.25) !important; }
   .evit-cell { background: rgba(180,50,50,0.15) !important; }
