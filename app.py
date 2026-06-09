@@ -200,7 +200,7 @@ with st.sidebar:
     # Cargar datos por defecto del repositorio si existen
     import os
     datos_default = None
-    for nombre in ['datos.xlsx','datos_Cloude_sin_Compra.xlsx','data.xlsx']:
+    for nombre in ['DATOS.xlsx','datos.xlsx','datos_Cloude_sin_Compra.xlsx','data.xlsx']:
         if os.path.exists(nombre):
             datos_default = nombre
             break
@@ -249,7 +249,7 @@ with st.sidebar:
 # ── Determinar fuente de datos ──────────────────────
 import os
 datos_default = None
-for nombre in ['datos.xlsx','datos_Cloude_sin_Compra.xlsx','data.xlsx']:
+for nombre in ['DATOS.xlsx','datos.xlsx','datos_Cloude_sin_Compra.xlsx','data.xlsx']:
     if os.path.exists(nombre):
         datos_default = nombre
         break
