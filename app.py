@@ -423,7 +423,7 @@ with tab2:
             return 'background-color: rgba(180,50,50,0.10); color: #c04444; opacity: 0.6'
         return 'color: #555a6a'
 
-    styled = pivot_df.style.applymap(style_cell)
+    styled = pivot_df.style.map(style_cell)
     styled = styled.set_properties(**{
         'white-space': 'pre-wrap',
         'font-size': '11px',
@@ -524,7 +524,7 @@ with tab3:
         return ''
 
     st.dataframe(
-        display_df.style.applymap(color_neto, subset=['Neto $']),
+        display_df.style.map(color_neto, subset=['Neto $']),
         height=400, use_container_width=True
     )
 
@@ -575,7 +575,7 @@ with tab4:
         return 'color: #555a6a'
 
     st.dataframe(
-        cruces_df.style.applymap(color_calidad, subset=['Calidad']),
+        cruces_df.style.map(color_calidad, subset=['Calidad']),
         height=500, use_container_width=True
     )
 
